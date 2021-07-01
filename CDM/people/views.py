@@ -117,6 +117,7 @@ def visit(request):
         race[ex_person.race_source_value] += 1
         ethnicity[ex_person.ethnicity_source_value] += 1
         visit_age = int(i.visit_start_date.year) - int(ex_person.year_of_birth)
+        # age부분은 떠오르는 방법이 없어서 if문으로 일일이 처리했습니다.
         if visit_age < 10:
             ages['0~9'] += 1
         elif visit_age < 20:
@@ -152,6 +153,8 @@ def visit(request):
     return Response(context)
    
 
+
+# concept 관련 정보를 찾는 api입니다
 @api_view(('GET',))
 def search(request):
     search = request.GET.get('search')
@@ -177,9 +180,11 @@ def search(request):
 
 
 
+# 유저에 대한 모든 정보를 찾는 api입니다
 @api_view(('GET',))
 def onlyOne(request):
     user_id = request.GET.get('user')
+    # 일치하는 유저가 있다면
     if Person.objects.filter(person_id=user_id).exists():
         theOne = Person.objects.get(person_id=user_id)
         visits = VisitOccurrence.objects.filter(person_id__exact=user_id)
@@ -257,6 +262,7 @@ def onlyOne(request):
         }
         return Response(context)
 
+    # 일치하는 유저가 없을때 유저 목록 반환
     else: 
         people = Person.objects.filter(person_id__contains=user_id).order_by('person_id')
         serializer = PersonSerializer(people, many=True)
